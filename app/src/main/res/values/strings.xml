@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">Reg_project</string>
+    <string name="action_settings">Settings</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="register">Register</string>
+    <string name="first_name">First Name</string>
+    <string name="last_name">Last Name</string>
+    <string name="register_button">REGISTER</string>
+    <string name="login">Login</string>
+    <string name="already_have_an_account">Already have an Account:</string>
+    <string name="login_fragment">LOGIN</string>
+    <string name="id_number">ID Number</string>
+    <string name="pin">Enter Your PIN</string>
+    <string name="set_pin">Set Pin</string>
+    <string name="confirm_pin">Confirm Pin</string>
+    <string name="my_id_number">ID Number</string>
+    <string name="set_my_pin">Set pin</string>
+</resources>
