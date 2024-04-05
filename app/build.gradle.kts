@@ -59,8 +59,10 @@ dependencies {
     implementation ("com.android.databinding:viewbinding:8.3.1")
 
 //    Rx Java
-    implementation ("io.reactivex.rxjava2:rxjava:2.2.9")
-    implementation ("io.reactivex.rxjava2:rxandroid:2.1.0")
+    implementation ("io.reactivex.rxjava2:rxjava:2.2.21")
+    implementation ("io.reactivex.rxjava2:rxandroid:2.1.1")
+
+
 
 //    LiveData
     implementation ("androidx.lifecycle:lifecycle-extensions:2.2.0")

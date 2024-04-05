@@ -50,7 +50,9 @@
             android:id="@+id/inputFirstName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@{userRegister.oFirstName}"
+            android:text='@{userRegister == null ? "" :userRegister.oFirstName}'
+            android:afterTextChanged="@{userRegister::firstNameChanged}"
+
 
 
             />
@@ -74,7 +76,8 @@
             android:id="@+id/inputLastName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@{userRegister.oLastName}"
+            android:text='@{userRegister == null ? "" : userRegister.oLastName}'
+            android:afterTextChanged="@{userRegister::lastNameChanged}"
 
             />
 
@@ -117,7 +120,8 @@
             android:layout_height="wrap_content"
             android:maxLength="8"
             android:inputType="number"
-            android:text="@{userRegister.oUid}"
+            android:text="@={userRegister.oUid}"
+            android:afterTextChanged="@{userRegister::idChanged}"
 
             />
 
@@ -125,20 +129,25 @@
 
 
 
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/register_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:backgroundTint="@color/orange"
         android:text="@string/register_button"
         android:textSize="20sp"
-        android:onClick="@{() -> userRegister.registerUser()}"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.89"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/id_Number"
-        app:layout_constraintVertical_bias="0.232" />
+        app:layout_constraintVertical_bias="0.232"
+        android:focusable="true" />
+
+<!--        android:enabled="@{userRegister.oFirstName.trim().length()>0 &amp;&amp;-->
+<!--        userRegister.oLastName.trim().length()>0 &amp;&amp;-->
+<!--        userRegister.oUid.trim().length()>0}"-->
+<!--        />-->
 
     <TextView
         android:id="@+id/account_text"

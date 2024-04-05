@@ -6,7 +6,7 @@
 
     <data>
         <variable
-            name="viewmodel"
+            name="setPinModel"
             type="com.register.viewModel.AuthViewModel" />
     </data>
 
@@ -53,6 +53,8 @@
             android:layout_height="match_parent"
             android:maxLength="4"
             android:inputType="number"
+            android:text="@{setPinModel.oPin}"
+            android:afterTextChanged="@{setPinModel::pin}"
 
             />
     </com.google.android.material.textfield.TextInputLayout>
@@ -76,11 +78,28 @@
             android:layout_height="match_parent"
             android:maxLength="4"
             android:inputType="number"
+            android:text="@={setPinModel.oPin}"
+            android:afterTextChanged="@{setPinModel::pinChanged}"
+
 
             />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <ProgressBar
+        android:id="@+id/ProgressBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="invisible"
+        tools:visibility ="visible"
+        app:layout_constraintTop_toBottomOf="@id/confirm_pin"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+
+        />
+
     <Button
+        android:id="@+id/submitButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="92dp"

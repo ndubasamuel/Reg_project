@@ -9,6 +9,7 @@ import com.register.PinFragment
 import com.register.RegisterFragment
 import com.register.di.Module.AppModule
 import com.register.di.Module.DbModule
+import com.register.viewModel.AuthViewModel
 import dagger.BindsInstance
 import dagger.Component
 import javax.inject.Singleton
@@ -22,8 +23,8 @@ interface AppComponent {
 
     fun inject(registerFragment: RegisterFragment)
     fun inject(activity: MainActivity)
-//    fun inject(loginFragment: LoginFragment)
-//    fun inject(pinFragment: PinFragment)
+    fun inject(loginFragment: LoginFragment)
+    fun inject(pinFragment: PinFragment)
 
     @Component.Builder
     interface Builder {
