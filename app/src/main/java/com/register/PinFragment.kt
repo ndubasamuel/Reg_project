@@ -1,6 +1,6 @@
 package com.register
 
-import android.database.Observable
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -12,19 +12,20 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.jakewharton.rxbinding2.view.RxView
 import com.jakewharton.rxbinding2.widget.RxTextView
-import com.register.Utils.AuthListener
-import com.register.viewModel.AuthViewModel
+import com.register.Utils.StreamListener
 import com.register.databinding.FragmentPinBinding
+import com.register.viewModel.AuthViewModel
 import com.register.viewModel.AuthViewModelFactory
 import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 
 
-class PinFragment : Fragment(), AuthListener {
+class PinFragment : Fragment(), StreamListener {
 
     private lateinit var binding: FragmentPinBinding
     private lateinit var viewModel: AuthViewModel
     private var disposables = CompositeDisposable()
+
     @Inject
     lateinit var authViewModelFactory: AuthViewModelFactory
 
@@ -45,11 +46,12 @@ class PinFragment : Fragment(), AuthListener {
         viewModel = ViewModelProvider(this, authViewModelFactory).get(AuthViewModel::class.java)
         binding.setPinModel = viewModel
 
-        viewModel.authListener = this
+        viewModel.streamListener = this
 
         val pinObservable = RxTextView.afterTextChangeEvents(binding.setYourPin)
-            .subscribe ({ event ->
-                viewModel.pin(event.editable())
+            .skipInitialValue()
+            .subscribe({ event ->
+                viewModel.pinInput(event.editable())
             }, { error ->
                 Log.e("Pin Fragment", "Pin Setting Error: ${error.message}")
                 Toast.makeText(requireContext(), "Pin Setting Error: ${error.message}", Toast.LENGTH_SHORT).show()
@@ -58,6 +60,7 @@ class PinFragment : Fragment(), AuthListener {
 
 
         val confirmPinObservable = RxTextView.afterTextChangeEvents(binding.confirmYourPin)
+            .skipInitialValue()
             .subscribe({ event ->
                 viewModel.pinChanged(event.editable()!!)
             }, { error ->
@@ -68,12 +71,14 @@ class PinFragment : Fragment(), AuthListener {
 
         val submitObservables = RxView.clicks(binding.submitButton)
             .subscribe({
-                viewModel.setPin()
+                viewModel.onClickPin()
+
             }, { error ->
 
                 Log.e("Pin Fragment", "Button Click Error confirm pin: ${error.message}")
                 Toast.makeText(requireContext(), "Button Click Error: ${error.message}", Toast.LENGTH_SHORT).show()
             })
+
         disposables.add(submitObservables)
     }
 
@@ -82,16 +87,18 @@ class PinFragment : Fragment(), AuthListener {
         disposables.clear()
     }
 
+
+    @SuppressLint("CheckResult")
     override fun onStarted() {
         binding.ProgressBar.visibility = View.VISIBLE
+
     }
 
     override fun onSuccess() {
         binding.ProgressBar.visibility = View.GONE
-        binding.submitButton.setOnClickListener {
-            findNavController().navigate(R.id.action_pinFragment_to_homeScreen)
-            Toast.makeText(context, "Registration Successful", Toast.LENGTH_SHORT).show()
-        }
+        findNavController().navigate(PinFragmentDirections.actionPinFragmentToHomeScreen())
+        Toast.makeText(context, "Registration Successful", Toast.LENGTH_SHORT).show()
+
     }
 
     override fun onFailure(message: String) {
@@ -99,6 +106,5 @@ class PinFragment : Fragment(), AuthListener {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
 
     }
-
-
 }
+

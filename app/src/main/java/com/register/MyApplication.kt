@@ -16,19 +16,15 @@ class MyApplication : Application(){
         initializeComponent()
          setInstance(this)
     }
-
         private fun initializeComponent() {
             appComponent = DaggerAppComponent.builder()
                 .application(this)
                 .dbModule(DbModule(this))
                 .build()
-
             appComponent.inject(this)
-
     }
-
     companion object {
-        var appContext: MyApplication? = null
+        private var appContext: MyApplication? = null
             private set
 
 

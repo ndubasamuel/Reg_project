@@ -11,7 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.jakewharton.rxbinding2.view.RxView
 import com.jakewharton.rxbinding2.widget.RxTextView
-import com.register.Utils.AuthListener
+import com.register.Utils.StreamListener
 import com.register.viewModel.AuthViewModel
 import com.register.databinding.FragmentLoginBinding
 import com.register.viewModel.AuthViewModelFactory
@@ -19,7 +19,7 @@ import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 
 
-class LoginFragment : Fragment(), AuthListener {
+class LoginFragment : Fragment(), StreamListener{
 
     private lateinit var binding: FragmentLoginBinding
     private lateinit var viewModel: AuthViewModel
@@ -42,19 +42,19 @@ class LoginFragment : Fragment(), AuthListener {
 //        viewModel = ViewModelProvider(this).get(AuthViewModel::class.java)
 
         viewModel = ViewModelProvider(this, authViewModelFactory).get(AuthViewModel::class.java)
-        binding.loginModel = viewModel
+        binding.loginModel = this.viewModel
 
 //        Pin setUp
         val pinDisposable = RxTextView.afterTextChangeEvents(binding.enterYourPin)
             .subscribe{ event ->
                 let {
-                    viewModel.pin(event.editable())
+                    viewModel.pinInput(event.editable())
                 }
             }
         disposables.add(pinDisposable)
 
 //      Login action
-        val loginDisposable = RxView.clicks(binding.login)
+        val loginDisposable = RxView.clicks(binding.loginButton)
             .subscribe({
                 viewModel.loginUser()
             },{ error ->
@@ -70,16 +70,12 @@ class LoginFragment : Fragment(), AuthListener {
 
     override fun onSuccess() {
         binding.ProgressBar.visibility = View.VISIBLE
-        binding.login.setOnClickListener{
-            findNavController().navigate(R.id.action_login_to_homeScreen)
-        }
+            findNavController().navigate(LoginFragmentDirections.actionLoginToHomeScreen())
+            Toast.makeText(context, "Successful", Toast.LENGTH_SHORT).show()
     }
 
     override fun onFailure(message: String) {
         binding.ProgressBar.visibility = View.GONE
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
-
     }
-
-
 }

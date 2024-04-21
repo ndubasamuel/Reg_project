@@ -54,7 +54,6 @@
             android:afterTextChanged="@{userRegister::firstNameChanged}"
 
 
-
             />
 
     </com.google.android.material.textfield.TextInputLayout>
@@ -76,7 +75,7 @@
             android:id="@+id/inputLastName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text='@{userRegister == null ? "" : userRegister.oLastName}'
+            android:text='@{userRegister == null ? "" :userRegister.oLastName}'
             android:afterTextChanged="@{userRegister::lastNameChanged}"
 
             />
@@ -120,7 +119,7 @@
             android:layout_height="wrap_content"
             android:maxLength="8"
             android:inputType="number"
-            android:text="@={userRegister.oUid}"
+            android:text="@{userRegister.oUid}"
             android:afterTextChanged="@{userRegister::idChanged}"
 
             />

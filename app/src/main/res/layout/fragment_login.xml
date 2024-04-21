@@ -52,8 +52,8 @@
         android:layout_height="match_parent"
         android:inputType="number"
         android:maxLength="4"
-        android:text="@{ `` + loginModel.oPin}"
-        android:afterTextChanged="@{loginModel::pinChanged}"
+        android:text="@{loginModel.oPin}"
+        android:afterTextChanged="@{loginModel::pinInput}"
 
         />
 
@@ -74,6 +74,7 @@
         tools:visibility="visible" />
 
     <Button
+            android:id="@+id/loginButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="124dp"
