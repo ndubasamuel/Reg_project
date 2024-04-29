@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.jakewharton.rxbinding2.view.RxView
 import com.jakewharton.rxbinding2.widget.RxTextView
+import com.register.Model.User
 import com.register.Utils.StreamListener
 import com.register.databinding.FragmentRegisterBinding
 import com.register.viewModel.AuthViewModel
@@ -26,6 +27,8 @@ class RegisterFragment : Fragment(), StreamListener{
     private lateinit var binding: FragmentRegisterBinding
     private var disposables = CompositeDisposable()
 //    private val streamListener: StreamListener? = null
+
+    private val user: User? = null
 
     @Inject
     lateinit var authViewModelFactory: AuthViewModelFactory
@@ -48,7 +51,7 @@ class RegisterFragment : Fragment(), StreamListener{
 
         viewModel = ViewModelProvider(this, authViewModelFactory).get(AuthViewModel::class.java)
 
-        binding.userRegister = viewModel
+        binding.userRegister = user
 
         viewModel.streamListener = this
 

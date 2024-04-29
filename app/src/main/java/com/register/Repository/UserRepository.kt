@@ -7,6 +7,7 @@ import com.register.Utils.DatabaseEvent
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import javax.inject.Inject
@@ -20,15 +21,14 @@ class UserRepository @Inject constructor(private val userDao: UserDao) {
 
     //  Register User
 fun register(user: User): Completable {
+        Log.d("Repository", "Do onComplete Action $user")
     val insertUser = DatabaseEvent(DatabaseEventType.INSERTED, user)
     return Completable.fromAction {
         userDao.upsert(user)
-        Log.d("Repository", "Do onComplete Action $user")
         mObserverSubject.onNext(insertUser)
     }.subscribeOn(Schedulers.io())
         .doOnError{ it ->
             Log.d("Error", "Handling $it")}
-
 }
 
     //    Login User

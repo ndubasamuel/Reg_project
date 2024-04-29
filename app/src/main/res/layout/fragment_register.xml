@@ -8,7 +8,7 @@
 <data>
         <variable
             name="userRegister"
-            type="com.register.viewModel.AuthViewModel" />
+            type="com.register.Model.User" />
     </data>
 
 
@@ -119,7 +119,7 @@
             android:layout_height="wrap_content"
             android:maxLength="8"
             android:inputType="number"
-            android:text="@{userRegister.oUid}"
+            android:text='@{userRegister.oUid}'
             android:afterTextChanged="@{userRegister::idChanged}"
 
             />

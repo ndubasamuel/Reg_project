@@ -12,62 +12,66 @@ import com.register.Utils.Resource
 import com.register.Utils.StreamListener
 import io.reactivex.*
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.subjects.BehaviorSubject
+import java.lang.NumberFormatException
 import javax.inject.Inject
 
-@SuppressLint("CheckResult")
 class AuthViewModel @Inject constructor(private val repository: UserRepository) : ViewModel() {
 
     private var disposables = CompositeDisposable()
     var streamListener: StreamListener? = null
 
+    val user = User(null, lastName = "", firstName = null, pin = null)
 
-    var oFirstName: String? = ""
-    var oLastName: String? = ""
-    var oUid: String? = ""
-    var oPin: String?= ""
-    var oPinChanged: String? = ""
+    var oFirstName = user.oFirstName
+    var oLastName = user.oLastName
+    var oUid = user.oUid
+    var oPin = user.oPin
+    private var oPinChanged: String? = oPin
 
-    private val user = User(firstName = oFirstName.toString(), lastName = oLastName.toString(), id = null, pin = null)
 
-    private val regUser = Flowable.create({ emitter ->
+    private val regUser = Flowable.create<Resource<User>>({ emitter ->
         emitter.onNext(Resource.Loading())
-        val registerUser = repository.register(user)
-        Log.d("ViewModel", "User Registration $user")
-        emitter.onNext(Resource.Success(registerUser))
-        emitter.onComplete()
+        try {
+
+            Log.d("ViewModel", "User Registration Successful: $user")
+            emitter.onNext(Resource.Success(user))
+            emitter.onComplete()
+        } catch (e: Exception) {
+            Log.e("ViewModel", "User Registration Failed: ${e.message}")
+            emitter.onError(e)
+        }
     }, BackpressureStrategy.BUFFER)
 
-
     init {
-        regUser.subscribe ({ resource ->
-            if (Resource.Success(data = user) == resource.data) {
-                Log.d("ViewModel", "Registration Successful")
-                 repository.register(user)
-            } }, { error ->
-            Log.e("ViewModel", "Error")
-        })
-    }
+        disposables.add(
+            regUser.subscribe({ resource ->
+                Log.d("ViewModel", "Down Stream: ${resource.data}")
+                when (resource) {
+                    is Resource.Loading -> Log.d("ViewModel", "Loading")
+                    is Resource.Success -> Log.d("ViewModel", "Registration Successful: ${resource.data}")
+                    is Resource.Error -> Log.e("ViewModel", "Registration Failed: ${resource.message}")
+                }
+            }, { error ->
+                Log.e("ViewModel", "Down Stream Failed: ${error.message}")
+            })
+        )
 
+    }
 
     fun helloText(): Observable<DatabaseEvent<String>> {
         Log.d("ViewModel", "Room String $String")
         return repository.observeText()
     }
 
-//    fun getUser(firstName: String): Flowable<DatabaseEvent<String>> {
-//        Log.d("ViewModel", "User $firstName")
-//        return
-//    }
-
     @SuppressLint("CheckResult")
     fun onClickReg() : Boolean {
         streamListener?.onStarted()
 
-        if (oFirstName?.isEmpty() == true) {
+        if (oFirstName!!.isEmpty()) {
             streamListener?.onFailure("First name Required")
             return false
         } else {
+            Log.d("ViewModel", "FirstName $oFirstName")
             streamListener?.onStarted()
         }
 
@@ -76,17 +80,20 @@ class AuthViewModel @Inject constructor(private val repository: UserRepository) 
             streamListener?.onFailure("Last name is Required")
             return false
         } else {
+            Log.d("ViewModel Name", " LastName $oLastName")
             streamListener?.onStarted()
         }
 
         // ID check
-        if (oUid.toString().isEmpty() || !oUid.toString().matches(Regex("^(?!\\s*\$)[0-9\\s]{8}\$"))) {
+        if (oUid!!.isEmpty() || !oUid!!.matches(Regex("^(?!\\s*\$)[0-9\\s]{8}\$"))) {
             streamListener?.onFailure("Invalid. ID Must be 8 digits")
             return false
+        } else {
+            Log.d("ViewModel ID", "ID $oUid")
+            streamListener?.onSuccess()
         }
-        streamListener?.onSuccess()
+         repository.register(user)
         return true
-
     }
 
     fun onClickPin(): Boolean {
@@ -95,22 +102,16 @@ class AuthViewModel @Inject constructor(private val repository: UserRepository) 
 
         val pin1 = oPin
         val pin2 = oPinChanged
-        if (pin1.toString().isEmpty() || !pin1.toString().matches(Regex("^[0-9]{4}\$"))) {
+        if (pin1!!.isEmpty() || !pin1.matches(Regex("^[0-9]{4}\$"))) {
             streamListener?.onFailure("Pin Required: Must be 4 Digits")
             return false
-        } else {
-            Resource.Success(user)
-
         }
-
-        if (pin2.toString().isEmpty() || !pin2.toString().matches(Regex("^[0-9]{4}\$"))) {
+        if (pin2!!.isEmpty() || !pin2.matches(Regex("^[0-9]{4}\$"))) {
             streamListener?.onFailure("Pin Confirmation Required")
             return false
-        } else {
-            Resource.Success(user)
         }
 
-        if (pin1.toString().length != pin2.toString().length) {
+        if (pin1.length != pin2.length) {
             streamListener?.onFailure("Pin has to Match")
             return false
 
@@ -126,7 +127,7 @@ class AuthViewModel @Inject constructor(private val repository: UserRepository) 
 
     //loginPin_Setup
     fun loginUser(): Flowable<Resource<Int>> {
-        val pin: Int? = oPin?.toInt()
+        val pin: Int = oPin!!.toInt()
 
         if (pin.toString().isEmpty() || !pin.toString().matches(Regex("^[0-9]{4}$"))) {
             Resource.Error<User>("User Invalid Pin")
@@ -139,35 +140,35 @@ class AuthViewModel @Inject constructor(private val repository: UserRepository) 
             Flowable.just(Resource.Success(id))
         }
     }
-
     fun firstNameChanged(editable: Editable?) {
-        val firstName = editable.toString()
-        oFirstName = firstName
+        val firstName = editable
+
+
+        return
+    }
+    fun lastNameChanged(editable: Editable?) {
+        val lastName = editable.toString()
+        oLastName = lastName
+        return
+    }
+
+    fun idChanged(editable: Editable?) {
+        val id = editable.toString()
+        oUid = id
         return
     }
 
 
-        fun lastNameChanged(editable: Editable?) {
-            val lastName = editable.toString()
-            oLastName = lastName
-            return
-        }
-
-        fun idChanged(editable: Editable?) {
-            val id: String? = editable?.toString()
-            oUid = id !!
-            return
-        }
 
         fun pinInput(editable: Editable?) {
-            val pin: String? = editable?.toString()
-            oPin = pin !!
+            val pin = editable.toString()
+            oPin = pin
             return
         }
 
         fun pinChanged(editable: Editable?) {
-            val pinChanged: String? = editable?.toString()
-            oPinChanged = pinChanged !!
+            val pinChanged = editable.toString()
+            oPinChanged = pinChanged
             return
         }
 

@@ -1,37 +1,42 @@
 package com.register.Model
 
+import android.text.Editable
 import android.util.Log
 import androidx.databinding.BaseObservable
 import androidx.databinding.Bindable
+import androidx.databinding.library.baseAdapters.BR
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
-import io.reactivex.subjects.BehaviorSubject
+import com.register.viewModel.AuthViewModel
+import io.reactivex.Observable
 
 
 @Entity(tableName = "users")
 data class User(
     @PrimaryKey
-    var id: Int?,
+    var id: Int? = null,
     @ColumnInfo(name = "firstName")
-    var firstName: String,
+    var firstName: String? = "",
     @ColumnInfo(name = "lastName")
-    var lastName: String,
+    var lastName: String? = "",
     @ColumnInfo(name = "pin")
-    var pin: Int?,
+    var pin: Int? = null,
+
     @ColumnInfo(name = "greeting")
     var greeting: String = "Hello and Welcome"
 
 ) : BaseObservable(){
     @get: Bindable
     @Ignore
-    var oFirstName: String? = ""
+    var oFirstName: String = ""
         set(value) {
             Log.d("User", "Got user $oFirstName")
             field = value
             firstName = value.toString()
-//            notifyPropertyChanged(BR.oFirstName)
+
+            notifyPropertyChanged(BR.oFirstName)
         }
 
     @get : Bindable
@@ -41,16 +46,17 @@ data class User(
             Log.d("User", "Got User $oLastName")
             field = value
             lastName = value.toString()
-//            notifyPropertyChanged(BR.oLastName)
+            notifyPropertyChanged(BR.oLastName)
         }
 
     @get : Bindable
     @Ignore
     var oUid: String? = null
         set(value) {
+            Log.d("User", "User ID $oUid")
             id = value.toString().length
             field = value
-//            notifyPropertyChanged(BR.oUid)
+            notifyPropertyChanged(BR.oUid)
         }
 
     @get : Bindable
@@ -59,7 +65,7 @@ data class User(
         set(value) {
             pin = value?.toInt()
             field = value
-//            notifyPropertyChanged(BR.oPin)
+            notifyPropertyChanged(BR.oPin)
         }
 
     @get: Bindable
@@ -68,7 +74,7 @@ data class User(
         set(value) {
             oPinChanged = value.toString()
             field = value
-//            notifyPropertyChanged(BR.oPinChanged)
+            notifyPropertyChanged(BR.oPinChanged)
         }
 
     @get: Bindable
@@ -78,6 +84,10 @@ data class User(
             greeting = value.toString()
             field = value
         }
+
+
+
+
 }
 
 
