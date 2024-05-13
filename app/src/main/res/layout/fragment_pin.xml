@@ -53,8 +53,8 @@
             android:layout_height="match_parent"
             android:maxLength="4"
             android:inputType="number"
-            android:text="@{setPinModel.oPin}"
-            android:afterTextChanged="@{setPinModel::pinInput}"
+            android:text="@={setPinModel.oPin}"
+
 
             />
     </com.google.android.material.textfield.TextInputLayout>
@@ -78,8 +78,8 @@
             android:layout_height="match_parent"
             android:maxLength="4"
             android:inputType="number"
-            android:text="@{setPinModel.oPinChanged}"
-            android:afterTextChanged="@{setPinModel::pinChanged}"
+            android:text="@={setPinModel.oPinChanged}"
+
 
 
             />

@@ -50,8 +50,7 @@
             android:id="@+id/inputFirstName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text='@{userRegister == null ? "" :userRegister.oFirstName}'
-            android:afterTextChanged="@{userRegister::firstNameChanged}"
+            android:text="@={userRegister.oFirstName}"
 
 
             />
@@ -75,8 +74,7 @@
             android:id="@+id/inputLastName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text='@{userRegister == null ? "" :userRegister.oLastName}'
-            android:afterTextChanged="@{userRegister::lastNameChanged}"
+            android:text="@={userRegister.oLastName}"
 
             />
 
@@ -119,8 +117,7 @@
             android:layout_height="wrap_content"
             android:maxLength="8"
             android:inputType="number"
-            android:text='@{userRegister.oUid}'
-            android:afterTextChanged="@{userRegister::idChanged}"
+            android:text="@={userRegister.oUid}"
 
             />
 

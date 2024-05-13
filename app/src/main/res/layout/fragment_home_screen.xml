@@ -15,13 +15,28 @@
     android:layout_height="match_parent"
     tools:context=".HomeScreen">
 
-    <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/greetingView"
+    <TextView
+            android:id="@+id/greeting"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:listitem="@layout/greetingcard"
-            tools:itemCount="2"
-            />
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:text=""
+            android:textSize="20sp"
+            android:gravity="center"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+    />
+
+    <TextView
+            android:id="@+id/userName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="20sp"
+            android:gravity="center"
+            app:layout_constraintTop_toBottomOf="@id/greeting"
+    />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -22,7 +22,7 @@ import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 
 
-class RegisterFragment : Fragment(), StreamListener{
+class RegisterFragment : Fragment() {
 
     private lateinit var viewModel: AuthViewModel
     private lateinit var binding: FragmentRegisterBinding
@@ -51,83 +51,60 @@ class RegisterFragment : Fragment(), StreamListener{
         viewModel = ViewModelProvider(this, authViewModelFactory).get(AuthViewModel::class.java)
         binding.userRegister = viewModel
 
-        viewModel.streamListener = this
+//        viewModel.streamListener = this
 
-
-
-//      firstNameBinding
-        val firstNameDisposable = RxTextView.afterTextChangeEvents(binding.inputFirstName)
-            .skipInitialValue()
-            .subscribe({ event ->
-                viewModel.firstNameChanged(event.editable()!!)
-            }, { error ->
-                Log.e("Register Fragment", "First Name Input: $ ${error.message}")
-                Toast.makeText(requireContext(), "First Name input Error", Toast.LENGTH_SHORT).show()
-
-            })
-        disposables.add(firstNameDisposable)
-
-
-//      lastNameBinding
-        val lastNameDisposable = RxTextView.afterTextChangeEvents(binding.inputLastName)
-            .skipInitialValue()
-            .subscribe({ event ->
-                viewModel.lastNameChanged(event.editable())
-            }, { error ->
-                Log.e("Register Fragment", "Last Name Input: $ ${error.message}")
-                Toast.makeText(requireContext(), "Last Name input Error", Toast.LENGTH_SHORT).show()
-
-            })
-        disposables.add(lastNameDisposable)
-
-
-//      ID Input binding
-        val idDisposable = RxTextView.afterTextChangeEvents(binding.inputID)
-            .skipInitialValue()
-            .subscribe({ event ->
-                viewModel.idChanged(event.editable())
-
-            }, { error ->
-                Log.e("Register Fragment", "ID Input: $ ${error.message}")
-                Toast.makeText(requireContext(), "ID input Error", Toast.LENGTH_SHORT).show()
-
-            })
-        disposables.add(idDisposable)
-
-
-//      Register user
-        val buttonDisposable = RxView.clicks(binding.registerButton)
-            .subscribe({
-                viewModel.onClickReg()
-
-            }, { error ->
-                Log.e("Register Fragment", "Button Click Error: ${error.message}")
-                Toast.makeText(requireContext(), "Button Click Error: ${error.message}", Toast.LENGTH_SHORT).show()
-            })
-        disposables.add(buttonDisposable)
+        binding.registerButton.apply {
+            setOnClickListener {
+                handleOnClick()
+            }
+        }
 
         binding.accountTextClick.setOnClickListener {
             findNavController().navigate(R.id.action_register_to_login)
         }
 
     }
+
+    @SuppressLint("CheckResult")
+    private fun handleOnClick() {
+        viewModel.onClickReg()
+            .subscribe ({ resource ->
+                when (resource) {
+                    is Resource.Loading -> {
+                        Log.d("User Fragment", "Loading")
+//                            Progress bar...
+                    }
+                    is Resource.Success-> {
+                        resource.data.let {
+                            viewModel.registerUser
+                            Log.d("Register Fragment", "User: ${resource.data}")
+                        }
+                            Toast.makeText(context, "Successful", Toast.LENGTH_SHORT).show()
+                        findNavController().navigate(R.id.action_register_to_pinFragment)
+                        }
+//                        Toast.makeText(context, "Welcome: ${newUser}", Toast.LENGTH_SHORT).show()
+
+                    is Resource.Error -> {
+//                        errorVisibility()
+                        val errorMessage = resource.message
+                        Toast.makeText(context, "Failed: $errorMessage", Toast.LENGTH_SHORT).show()
+                        Log.e("PinFragment", "Error: $errorMessage")
+                    }
+                }
+            }, { error ->
+
+                Toast.makeText(context, "Registration Failed: ${error.message}", Toast.LENGTH_SHORT).show()
+                Log.e("PinFragment", "Error: $error.message")
+
+
+            })
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         disposables.clear()
     }
-    override fun onStarted() {
-        binding.ProgressBar.visibility = View.VISIBLE
-    }
-    override fun onSuccess() {
-        binding.ProgressBar.visibility = View.GONE
-        findNavController().navigate(RegisterFragmentDirections.actionRegisterToPinFragment())
-        Toast.makeText(context, "Successful", Toast.LENGTH_SHORT).show()
-    }
 
-    override fun onFailure(message: String) {
-        binding.ProgressBar.visibility = View.GONE
-        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
-    }
 
 }
 

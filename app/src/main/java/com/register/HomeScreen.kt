@@ -2,18 +2,17 @@ package com.register
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.register.Model.User
-import com.register.Model.UserAdapter.UserAdapter
 import com.register.databinding.FragmentHomeScreenBinding
 import com.register.viewModel.AuthViewModel
 import com.register.viewModel.AuthViewModelFactory
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
@@ -21,9 +20,9 @@ import javax.inject.Inject
 class HomeScreen : Fragment() {
     private lateinit var viewModel: AuthViewModel
     private lateinit var binding: FragmentHomeScreenBinding
-    private lateinit var userAdapter: UserAdapter
+    private var disposables = CompositeDisposable()
 
-    private val user: User = User(0, "", "", 0, "")
+
 
     @Inject
     lateinit var authViewModelFactory: AuthViewModelFactory
@@ -43,7 +42,6 @@ class HomeScreen : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         (requireActivity().application as MyApplication).appComponent.inject(this)
 
-        recyclerViewGreeting()
         viewModel = ViewModelProvider(this, authViewModelFactory).get(AuthViewModel::class.java)
         binding.viewmodel = viewModel
 
@@ -54,19 +52,25 @@ class HomeScreen : Fragment() {
             .subscribe()
 
 
-        viewModel.getUserName( )
+        viewModel.getUserName("")
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe()
-
+            .subscribe({ userName ->
+                // Update UI with the user's name
+                binding.userName.text = userName
+            }, { error ->
+                // Handle error
+                Log.e("HomeFragment", "Error observing user name: $error")
+            })
+            .let { disposables.add(it) }
     }
 
-    private fun recyclerViewGreeting() {
-        userAdapter = UserAdapter(user)
-        val recyclerView = binding.greetingView
-        recyclerView.layoutManager = LinearLayoutManager(activity)
-        recyclerView.adapter = userAdapter
+    override fun onDestroyView() {
+        super.onDestroyView()
+        disposables.clear()
     }
+
+
 
 
 }

@@ -19,7 +19,7 @@ import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 
 
-class LoginFragment : Fragment(), StreamListener{
+class LoginFragment : Fragment(){
 
     private lateinit var binding: FragmentLoginBinding
     private lateinit var viewModel: AuthViewModel
@@ -44,14 +44,6 @@ class LoginFragment : Fragment(), StreamListener{
         viewModel = ViewModelProvider(this, authViewModelFactory).get(AuthViewModel::class.java)
         binding.loginModel = this.viewModel
 
-//        Pin setUp
-        val pinDisposable = RxTextView.afterTextChangeEvents(binding.enterYourPin)
-            .subscribe{ event ->
-                let {
-                    viewModel.pinInput(event.editable())
-                }
-            }
-        disposables.add(pinDisposable)
 
 //      Login action
         val loginDisposable = RxView.clicks(binding.loginButton)
@@ -64,18 +56,5 @@ class LoginFragment : Fragment(), StreamListener{
         disposables.add(loginDisposable)
 
     }
-    override fun onStarted() {
-        binding.ProgressBar.visibility = View.GONE
-    }
 
-    override fun onSuccess() {
-        binding.ProgressBar.visibility = View.VISIBLE
-            findNavController().navigate(LoginFragmentDirections.actionLoginToHomeScreen())
-            Toast.makeText(context, "Successful", Toast.LENGTH_SHORT).show()
-    }
-
-    override fun onFailure(message: String) {
-        binding.ProgressBar.visibility = View.GONE
-        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
-    }
 }

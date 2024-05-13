@@ -3,13 +3,16 @@ package com.register.Model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import org.reactivestreams.Publisher
+import org.reactivestreams.Subscriber
 
 
 @Entity(tableName = "users")
 data class User(
-    @PrimaryKey
-    var id: Int,
-
+    @PrimaryKey(autoGenerate = true)
+    var id: Int?,
+    @ColumnInfo(name = "userId")
+    var userId: Int,
     @ColumnInfo(name = "firstName")
     var firstName: String,
 
@@ -17,12 +20,12 @@ data class User(
     var lastName: String,
 
     @ColumnInfo(name = "pin")
-    var pin: Int,
+    var pin: Int?,
 
     @ColumnInfo(name = "greeting")
     var greeting: String = "Hello and Welcome"
-
 )
+
 //    : BaseObservable(){
 //    @get: Bindable
 //    @Ignore

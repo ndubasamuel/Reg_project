@@ -13,6 +13,7 @@ import androidx.navigation.fragment.findNavController
 import com.jakewharton.rxbinding2.view.RxView
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.register.Model.User
+import com.register.Utils.Resource
 import com.register.Utils.StreamListener
 import com.register.databinding.FragmentPinBinding
 import com.register.viewModel.AuthViewModel
@@ -21,7 +22,7 @@ import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 
 
-class PinFragment : Fragment(), StreamListener {
+class PinFragment : Fragment() {
 
     private lateinit var binding: FragmentPinBinding
     private lateinit var viewModel: AuthViewModel
@@ -47,40 +48,44 @@ class PinFragment : Fragment(), StreamListener {
         viewModel = ViewModelProvider(this, authViewModelFactory).get(AuthViewModel::class.java)
         binding.setPinModel = viewModel
 
-        viewModel.streamListener = this
+        binding.submitButton.apply {
+            setOnClickListener {
+                handleOnClickPin()
+            }
+        }
 
-        val pinObservable = RxTextView.afterTextChangeEvents(binding.setYourPin)
-            .skipInitialValue()
-            .subscribe({ event ->
-                viewModel.pinInput(event.editable())
+    }
+    @SuppressLint("CheckResult")
+    private fun handleOnClickPin() {
+        viewModel.onClickPin()
+            .subscribe ({ resource ->
+                when (resource) {
+                    is Resource.Loading -> {
+                        Log.d("User Fragment", "Loading")
+//                            Progress bar...
+                    }
+                    is Resource.Success -> {
+                        resource.let {
+                            viewModel.registerUser
+                        }
+                        findNavController().navigate(R.id.action_pinFragment_to_homeScreen)
+                        Toast.makeText(context, "Welcome: ${resource.data?.firstName}", Toast.LENGTH_SHORT).show()
+                    }
+                    is Resource.Error -> {
+//                        errorVisibility()
+                        val errorMessage = resource.message
+                        Toast.makeText(context, "Failed: $errorMessage", Toast.LENGTH_SHORT).show()
+                        Log.e("PinFragment", "Error: $errorMessage")
+
+                    }
+                }
             }, { error ->
-                Log.e("Pin Fragment", "Pin Setting Error: ${error.message}")
-                Toast.makeText(requireContext(), "Pin Setting Error: ${error.message}", Toast.LENGTH_SHORT).show()
+
+                Toast.makeText(context, "Registration Failed: ${error.message}", Toast.LENGTH_SHORT).show()
+                Log.e("PinFragment", "Error: $error.message")
+
+
             })
-        disposables.add(pinObservable)
-
-
-        val confirmPinObservable = RxTextView.afterTextChangeEvents(binding.confirmYourPin)
-            .skipInitialValue()
-            .subscribe({ event ->
-                viewModel.pinChanged(event.editable()!!)
-            }, { error ->
-                Log.e("Pin Fragment", "Pin confirmation error: ${error.message}")
-                Toast.makeText(requireContext(), "Pin confirmation Error: ${error.message}", Toast.LENGTH_SHORT).show()
-            })
-        disposables.add(confirmPinObservable)
-
-        val submitObservables = RxView.clicks(binding.submitButton)
-            .subscribe({
-                viewModel.onClickPin()
-
-            }, { error ->
-
-                Log.e("Pin Fragment", "Button Click Error confirm pin: ${error.message}")
-                Toast.makeText(requireContext(), "Button Click Error: ${error.message}", Toast.LENGTH_SHORT).show()
-            })
-
-        disposables.add(submitObservables)
     }
 
     override fun onDestroyView() {
@@ -89,23 +94,5 @@ class PinFragment : Fragment(), StreamListener {
     }
 
 
-    @SuppressLint("CheckResult")
-    override fun onStarted() {
-        binding.ProgressBar.visibility = View.VISIBLE
-
-    }
-
-    override fun onSuccess() {
-        binding.ProgressBar.visibility = View.GONE
-        findNavController().navigate(PinFragmentDirections.actionPinFragmentToHomeScreen())
-        Toast.makeText(context, "Registration Successful", Toast.LENGTH_SHORT).show()
-
-    }
-
-    override fun onFailure(message: String) {
-        binding.ProgressBar.visibility = View.GONE
-        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
-
-    }
 }
 

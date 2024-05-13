@@ -25,7 +25,7 @@ interface UserDao {
     fun getGreeting(greeting: String): Single<String>
 
     @Query("SELECT firstname FROM users WHERE firstName = :firstName")
-    fun getName(firstName: String): Maybe<String>
+    fun getName(firstName: String): Flowable<String>
 
 
 
