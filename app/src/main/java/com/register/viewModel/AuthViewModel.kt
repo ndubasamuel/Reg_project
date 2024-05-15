@@ -5,20 +5,19 @@ import android.util.Log
 import androidx.databinding.ObservableField
 import androidx.lifecycle.ViewModel
 import com.register.Model.User
-import com.register.Model.UserAdapter.Navigator
 import com.register.Repository.UserRepository
 import com.register.Utils.DatabaseEvent
 import com.register.Utils.Resource
-import com.register.Utils.StreamListener
 import io.reactivex.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
+import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
 import org.reactivestreams.Publisher
 import javax.inject.Inject
 
 
+@SuppressLint("CheckResult")
 class AuthViewModel @Inject constructor(private val repository: UserRepository) : ViewModel() {
 
     private var disposables = CompositeDisposable()
@@ -41,13 +40,11 @@ class AuthViewModel @Inject constructor(private val repository: UserRepository) 
         val firstName = oFirstName.get() ?: ""
         val lastName = oLastName.get() ?: ""
         val id = oUid.get() ?: ""
-        val pin = oPin.get() ?: ""
 
         if (firstName.isEmpty()) {
             return Flowable.just(Resource.Error("First name Required"))
         }
         // Last name check
-
         if (lastName.isEmpty()) {
             return Flowable.just(Resource.Error("Last name Required"))
         }
@@ -58,11 +55,11 @@ class AuthViewModel @Inject constructor(private val repository: UserRepository) 
 
         val user = id.toIntOrNull()?.let { it1 ->
                 User(
-                    0,
+
                     userId = it1,
                     firstName = firstName,
                     lastName = lastName,
-                    pin = pin.toIntOrNull() )
+                    pin = 0 )
 
         }
         Log.d("ViewModel onClickReg", "User: $user")
@@ -71,10 +68,6 @@ class AuthViewModel @Inject constructor(private val repository: UserRepository) 
     }
 
     fun onClickPin(): Flowable<Resource<User>> {
-        val firstName = oFirstName.get() ?: ""
-        val lastName = oLastName.get() ?: ""
-        val id = oUid.get() ?: ""
-
         val pin = oPin.get() ?: ""
 
         if (pin.isEmpty() || !pin.matches(Regex("^(?!\\s*\$)[0-9\\s]{4}\$"))) {
@@ -85,58 +78,85 @@ class AuthViewModel @Inject constructor(private val repository: UserRepository) 
             return Flowable.just(Resource.Error("Confirm Pin"))
         }
 
-        val user = pin.toIntOrNull()?.let {it ->
-            id.toIntOrNull()?.let { it1 ->
-                User(
+        val user = User(
                     0,
-                    userId = it1,
-                    firstName = firstName,
-                    lastName = lastName,
-                    pin = it, )
-            }
-        }
+                    "",
+                    "",
+                     pin = pin.toIntOrNull())
 
-        Log.d("ViewModel", "User: $user")
+
+        Log.d("ViewModel onClickPin", "User: $user")
         return Flowable.just(Resource.Success(data = user))
     }
 
 
-
-
-
     val registerUser by lazy {
-        Flowable.zip(onClickReg(), onClickPin(), { resourceReg, resourcePin ->
+         Flowable.zip(onClickReg(), onClickPin(), { resourceReg, resourcePin ->
             Pair(resourceReg, resourcePin)
         })
             .flatMap { (resourceReg, resourcePin) ->
                 val userDataReg = resourceReg.data
                 val userDataPin = resourcePin.data
-                var userPin: Int? = null
-                var userRegFlowable: Flowable<User>? = null
 
 
-                val userPinFlowable = userDataPin?.let {
-                    userPin = it.pin
-                    userRegFlowable = userDataReg?.let {
-                        repository.insert(it) } ?: Flowable.empty<User>()
-                     } ?: Flowable.empty<User>()
+                val userRegFlowable = userDataReg?.let { user ->
+                    Log.d("ViewModel", "UserRegFlow DATA: $user")
+                    Flowable.just(listOf(user.userId, user.firstName, user.lastName))
+
+                } ?: Flowable.empty()
+
+                val userPinFlowable = userDataPin?.let { it ->
+                    Log.d("ViewModel", "UserPinFlow DATA: $it")
+                    Flowable.just(it.pin)
+
+                } ?: Flowable.empty<Int>()
 
 
+                Flowable.zip(userRegFlowable, userPinFlowable,
+                    BiFunction<List<out Any?>, Int, User> { userData, pin ->
+                        Log.d("ViewModel Bi-Function", "User Data: $userData, $pin")
+                        val userId = userData[0] as Int
+                        val firstName = userData[1] as String
+                        val lastName = userData[2] as String
+                        User(userId, firstName, lastName, pin)
 
-                Flowable.zip(userRegFlowable as Publisher<out User>?,
-                    userPinFlowable as Publisher<out User>?, { _, _ -> Pair(userDataReg, userDataPin) })
+                    })
+//                Flowable.zip(
+//                    userPinFlowable as Publisher<*>?,
+//                    userRegFlowable as Publisher<*>?
+//                ) {
+//                   _, _ ->
+//                    Log.d("ViewModel", "Flowable Zip data: $userRegFlowable")
+////                    Pair(userDataReg, userDataPin)
+//                }
             }
             .observeOn(Schedulers.io())
             .subscribeOn(AndroidSchedulers.mainThread())
-            .subscribe({ (userDataReg, userDataPin) ->
-                // Handle success here
-                Log.d("ViewModel", "ViewModel Data Reg: $userDataReg")
-                Log.d("ViewModel", "ViewModel Data Pin: $userDataPin")
+             .doOnNext { it ->
+                 Log.d("ViewModel", "ViewModel Data Reg: ${it}")
+                 Log.d("ViewModel", "ViewModel Data Pin: ${it}")
+             }
+             .doOnCancel {
+                 disposables.clear()
+             }
+//             .debounce  (10L, TimeUnit.SECONDS)
+            .subscribe({
+                repository.insert(it)
+                Log.d("ViewModel Subscribe", "ViewModel Data Reg: ${it}")
+                Log.d("ViewModel Subscribe", "ViewModel Data Pin: ${it}")
             }, { error ->
                 // Handle error here
                 Log.e("ViewModel", "Reg Failed: $error")
             })
+
     }
+//    private fun serialize(comparable: Comparable<*>?): ByteArray {
+//        val byteArrayOutputStream = ByteArrayOutputStream()
+//        val objectOutputStream = ObjectOutputStream(byteArrayOutputStream)
+//        objectOutputStream.writeObject(comparable)
+//        objectOutputStream.close()
+//        return byteArrayOutputStream.toByteArray()
+//    }
 
 
     //loginPin_Setup

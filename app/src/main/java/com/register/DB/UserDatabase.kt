@@ -7,7 +7,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.register.Model.User
 
-@Database(entities = [User::class], version = 7, exportSchema = false)
+@Database(entities = [User::class], version = 8, exportSchema = false)
 abstract class UserDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
 

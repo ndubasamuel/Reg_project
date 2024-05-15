@@ -1,14 +1,11 @@
 package com.register.DB
 
-import android.provider.SyncStateContract.Helpers.insert
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.register.Model.User
-import io.reactivex.Completable
 import io.reactivex.Flowable
-import io.reactivex.Maybe
 import io.reactivex.Single
 
 

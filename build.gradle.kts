@@ -19,4 +19,5 @@ plugins {
     id("com.android.library") version "7.3.0" apply false
     id("org.jetbrains.kotlin.android") version "1.7.10" apply false
     id ("com.google.devtools.ksp") version "1.8.10-1.0.9" apply false
+    id ("org.jetbrains.kotlin.plugin.parcelize") version "1.7.20" apply false
 }

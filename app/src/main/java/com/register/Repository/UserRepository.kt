@@ -1,22 +1,16 @@
 package com.register.Repository
 
 import android.annotation.SuppressLint
-import android.graphics.Insets.add
 import android.util.Log
 import com.register.DB.UserDao
 import com.register.Model.User
 import com.register.Utils.DatabaseEvent
-import com.register.Utils.Resource
-import io.reactivex.Completable
-import io.reactivex.CompletableOnSubscribe
 import io.reactivex.Flowable
-import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
-import org.reactivestreams.Subscriber
 import javax.inject.Inject
 
 class UserRepository @Inject constructor(private val userDao: UserDao) {
@@ -28,8 +22,9 @@ class UserRepository @Inject constructor(private val userDao: UserDao) {
 
     //  Register Use
 
-    fun insert(user: User){
-       Completable.fromPublisher<Pair<User?, Int?>> {
+    @SuppressLint("CheckResult")
+    fun insert(user: User)  {
+     Flowable.fromPublisher<User>{
             userDao.insert(user)
         }
             .subscribeOn(Schedulers.io())
@@ -39,13 +34,15 @@ class UserRepository @Inject constructor(private val userDao: UserDao) {
            }
            .doFinally {
                disposables?.clear()
+
            }
-           .subscribe()
+
+
     }
 
 
 //    fun insert(user: User) {
-//        Flowable.fromPublisher<Pair<User?, User>> {
+//     Flowable.fromPublisher<Pair<User?, User?>> {
 //            userDao.insert(user)
 //            Log.d("Repository", "Room Action: $user")
 //        }
@@ -55,12 +52,12 @@ class UserRepository @Inject constructor(private val userDao: UserDao) {
 //                Log.e("Repository", "Encountered an error: $error")
 //            }
 //            .doOnSubscribe { disposable ->
-//                disposables?.add(disposable)
+////                disposables?.add(disposable)
 //            }
 //            .doFinally {
 //                disposables?.clear()
-//            }
-//            .subscribe()
+//            }.subscribe()
+//
 //    }
 
     //  Login User

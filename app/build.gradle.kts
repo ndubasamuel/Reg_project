@@ -4,6 +4,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id ("androidx.navigation.safeargs")
     id("kotlin-kapt")
+    id("kotlin-parcelize")
     id ("com.google.devtools.ksp")
 }
 
