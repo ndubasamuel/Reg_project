@@ -1,8 +1,10 @@
 package com.register.Repository
 
 import android.annotation.SuppressLint
+import android.database.Cursor
 import android.util.Log
 import com.register.DB.UserDao
+import com.register.DB.UserDatabase
 import com.register.Model.User
 import com.register.Utils.DatabaseEvent
 import io.reactivex.*
@@ -51,24 +53,6 @@ class UserRepository @Inject constructor(private val userDao: UserDao) {
             }
     }
 
-    //  Observe Greeting text
-//    fun observeText() : Single<String>{
-//        Single.fromCallable{
-//            userDao.getGreeting("")
-//        }
-//            .observeOn(Schedulers.io())
-//            .subscribeOn(AndroidSchedulers.mainThread())
-//            .doOnSubscribe { disposable ->
-//                disposables?.add(disposable)
-//            }
-//            .subscribe({
-//
-//            }, { error ->
-//                Log.d("Repo", "Room text error: $error")
-//            }).dispose()
-//
-//           return Single.just("")
-//    }
 
     //  Observe all Users
     @SuppressLint("CheckResult")

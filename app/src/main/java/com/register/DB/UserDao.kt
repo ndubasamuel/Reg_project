@@ -1,5 +1,6 @@
 package com.register.DB
 
+import android.database.Cursor
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -24,6 +25,9 @@ interface UserDao {
 
     @Query("SELECT * FROM users ORDER BY firstName DESC LIMIT 1")
     fun getAllUsers(): Flowable<List<User>>
+
+
+
 
 
 

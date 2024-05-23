@@ -1,7 +1,11 @@
 package com.register
 
 import android.annotation.SuppressLint
+import android.inputmethodservice.Keyboard.Row
 import android.os.Bundle
+import android.text.Layout
+import android.text.Layout.Alignment
+import android.text.Layout.Directions
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -48,36 +52,31 @@ class HomeScreen : Fragment() {
         viewModel = ViewModelProvider(requireActivity(), authViewModelFactory).get(AuthViewModel::class.java)
 
         setUpRecyclerView()
-        viewUser()
+        viewModel.getUsers()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ userName ->
+                adapter.differ.submitList(userName)
+            }, { error ->
+                // Handle error
+                Log.e("HomeFragment", "Error observing user name: ${error}")
+            })
+
 
     }
 
-    fun setUpRecyclerView() {
+    private fun setUpRecyclerView() {
         adapter = UserAdapter()
         val recyclerView = binding.greetingView
-        recyclerView.layoutManager = LinearLayoutManager(activity)
+        recyclerView.layoutManager = LinearLayoutManager(context).apply {
+            Alignment.ALIGN_CENTER
+        }
+
         binding.greetingView.adapter = adapter
 
     }
-    private fun viewUser() {
-        user?.let {
-            Log.d("HomeScreen", "Adapter Data")
-            viewModel.getUsers()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ userName ->
-                           adapter.differ.submitList(userName)
-                }, { error ->
-                    // Handle error
-                    Log.e("HomeFragment", "Error observing user name: $error")
-                })
-        }?.let {
-            disposables.add(
-                it
-            )
-        }
 
-    }
+
 
     override fun onDestroyView() {
         super.onDestroyView()

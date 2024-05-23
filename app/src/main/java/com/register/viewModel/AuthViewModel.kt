@@ -35,7 +35,6 @@ class AuthViewModel @Inject constructor(private val repository: UserRepository) 
 
     }
 
-
     fun getUsers(): Flowable<List<User>>{
         return repository.getAllUsers()
     }
