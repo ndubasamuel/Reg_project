@@ -4,12 +4,15 @@ import android.widget.TextView
 import androidx.databinding.Bindable
 import androidx.databinding.BindingAdapter
 import androidx.databinding.InverseBindingAdapter
+import com.register.HomeScreen
+import io.reactivex.Observable
 
 
 class BaseBinding() {
-    @BindingAdapter("android:text")
-    fun setText(view: TextView, int: Int) {
-        view.text = int.toString()
+    val firstName = "Welcome"
+    @BindingAdapter("firstName")
+    fun setText(view: TextView, string: String) {
+        view.text = string
     }
 
 

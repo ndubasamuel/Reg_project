@@ -45,7 +45,7 @@ class PinFragment : Fragment() {
         (requireActivity().application as MyApplication).appComponent.inject(this)
 //        viewModel = ViewModelProvider(this).get(AuthViewModel::class.java)
 
-        viewModel = ViewModelProvider(this, authViewModelFactory).get(AuthViewModel::class.java)
+        viewModel = ViewModelProvider(requireActivity(), authViewModelFactory).get(AuthViewModel::class.java)
         binding.setPinModel = viewModel
 
         binding.submitButton.apply {
@@ -66,10 +66,10 @@ class PinFragment : Fragment() {
                     }
                     is Resource.Success -> {
                         resource.let {
-                            viewModel.registerUser
+                            viewModel.registerUser()
                         }
                         findNavController().navigate(R.id.action_pinFragment_to_homeScreen)
-                        Toast.makeText(context, "Welcome: ${resource.data?.firstName}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Welcome", Toast.LENGTH_SHORT).show()
                     }
                     is Resource.Error -> {
 //                        errorVisibility()

@@ -8,6 +8,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.register.Model.User
+import com.register.Model.UserAdapter.UserAdapter
 import com.register.databinding.FragmentHomeScreenBinding
 import com.register.viewModel.AuthViewModel
 import com.register.viewModel.AuthViewModelFactory
@@ -21,8 +24,8 @@ class HomeScreen : Fragment() {
     private lateinit var viewModel: AuthViewModel
     private lateinit var binding: FragmentHomeScreenBinding
     private var disposables = CompositeDisposable()
-
-
+    private lateinit var adapter: UserAdapter
+    val user: User? = null
 
     @Inject
     lateinit var authViewModelFactory: AuthViewModelFactory
@@ -42,27 +45,38 @@ class HomeScreen : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         (requireActivity().application as MyApplication).appComponent.inject(this)
 
-        viewModel = ViewModelProvider(this, authViewModelFactory).get(AuthViewModel::class.java)
-        binding.viewmodel = viewModel
+        viewModel = ViewModelProvider(requireActivity(), authViewModelFactory).get(AuthViewModel::class.java)
 
-//        View Greeting
-        viewModel.helloText()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe()
+        setUpRecyclerView()
+        viewUser()
 
+    }
 
-        viewModel.getUserName("")
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ userName ->
-                // Update UI with the user's name
-                binding.userName.text = userName
-            }, { error ->
-                // Handle error
-                Log.e("HomeFragment", "Error observing user name: $error")
-            })
-            .let { disposables.add(it) }
+    fun setUpRecyclerView() {
+        adapter = UserAdapter()
+        val recyclerView = binding.greetingView
+        recyclerView.layoutManager = LinearLayoutManager(activity)
+        binding.greetingView.adapter = adapter
+
+    }
+    private fun viewUser() {
+        user?.let {
+            Log.d("HomeScreen", "Adapter Data")
+            viewModel.getUsers()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ userName ->
+                           adapter.differ.submitList(userName)
+                }, { error ->
+                    // Handle error
+                    Log.e("HomeFragment", "Error observing user name: $error")
+                })
+        }?.let {
+            disposables.add(
+                it
+            )
+        }
+
     }
 
     override fun onDestroyView() {

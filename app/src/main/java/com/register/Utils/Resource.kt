@@ -1,7 +1,7 @@
 package com.register.Utils
 
 sealed class Resource <T>(
-    val data: T? = null,
+    var data: T? = null,
     val message: String? = null
 
 ) {

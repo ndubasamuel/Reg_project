@@ -5,8 +5,7 @@ import android.util.Log
 import com.register.DB.UserDao
 import com.register.Model.User
 import com.register.Utils.DatabaseEvent
-import io.reactivex.Flowable
-import io.reactivex.Observable
+import io.reactivex.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -21,50 +20,25 @@ class UserRepository @Inject constructor(private val userDao: UserDao) {
 
 
     //  Register Use
-
     @SuppressLint("CheckResult")
-    fun insert(user: User)  {
-     Flowable.fromPublisher<User>{
-            userDao.insert(user)
-        }
+    fun insert(user: User) {
+       Completable.fromAction{
+           Log.d("Repository", "User inserted successfully")
+           userDao.insert(user)}
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-           .doOnError{
-               Log.d("Repository", "User Register: $it")
-           }
-           .doFinally {
-               disposables?.clear()
-
-           }
-
-
+            .subscribe({
+                Log.d("Repository", "User inserted successfully")
+            }, { error ->
+                Log.e("Repository", "Failed to insert user: $error")
+            })
     }
 
 
-//    fun insert(user: User) {
-//     Flowable.fromPublisher<Pair<User?, User?>> {
-//            userDao.insert(user)
-//            Log.d("Repository", "Room Action: $user")
-//        }
-//            .subscribeOn(Schedulers.io())
-//            .observeOn(AndroidSchedulers.mainThread())
-//            .doOnError { error ->
-//                Log.e("Repository", "Encountered an error: $error")
-//            }
-//            .doOnSubscribe { disposable ->
-////                disposables?.add(disposable)
-//            }
-//            .doFinally {
-//                disposables?.clear()
-//            }.subscribe()
-//
-//    }
 
     //  Login User
-    fun login(int: Int): Flowable<Int> {
-        val loginUser = DatabaseEvent(DatabaseEventType.VERIFY, int)
+    fun login(int: Int): Maybe<Int> {
         return userDao.login(int)
-            .doOnEach { mObservableSubject1.onNext(loginUser) }
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .doOnError { error ->
@@ -78,27 +52,28 @@ class UserRepository @Inject constructor(private val userDao: UserDao) {
     }
 
     //  Observe Greeting text
-    fun observeText(): Observable<DatabaseEvent<String>> {
-        return userDao.getGreeting("")
-            .flatMapObservable { greeting ->
-                Observable.just(DatabaseEvent(DatabaseEventType.INSERTED, greeting))
-            }
-            .onErrorResumeNext(Observable.empty())
-            .doOnError { error ->
-                Log.e("Repository", "Encountered an error: $error")
-            }
-            .doOnSubscribe { disposable ->
-                disposables?.add(disposable)
-            }
-            .doFinally {
-                disposables?.clear()
-            }
-    }
+//    fun observeText() : Single<String>{
+//        Single.fromCallable{
+//            userDao.getGreeting("")
+//        }
+//            .observeOn(Schedulers.io())
+//            .subscribeOn(AndroidSchedulers.mainThread())
+//            .doOnSubscribe { disposable ->
+//                disposables?.add(disposable)
+//            }
+//            .subscribe({
+//
+//            }, { error ->
+//                Log.d("Repo", "Room text error: $error")
+//            }).dispose()
+//
+//           return Single.just("")
+//    }
 
     //  Observe all Users
     @SuppressLint("CheckResult")
-    fun observeUser(firstName: String): Flowable<String> {
-        return userDao.getName(firstName)
+    fun getAllUsers(): Flowable<List<User>> {
+        return userDao.getAllUsers()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .doOnError { error ->

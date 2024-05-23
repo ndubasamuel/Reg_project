@@ -1,13 +1,11 @@
 package com.register.Model
 
-import android.os.Parcel
 import android.os.Parcelable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import io.reactivex.Flowable
 import kotlinx.parcelize.Parcelize
-import org.reactivestreams.Publisher
-import org.reactivestreams.Subscriber
 
 
 @Parcelize
@@ -16,7 +14,7 @@ data class User(
     @PrimaryKey(autoGenerate = true)
 
     @ColumnInfo(name = "userId")
-    var userId: Int ,
+    var userId: Int,
     @ColumnInfo(name = "firstName")
     var firstName: String,
 
@@ -24,7 +22,7 @@ data class User(
     var lastName: String,
 
     @ColumnInfo(name = "pin")
-    var pin: Int? ,
+    var pin: Int?,
 
     @ColumnInfo(name = "greeting")
     var greeting: String = "Hello and Welcome"

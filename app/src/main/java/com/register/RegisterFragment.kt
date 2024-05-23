@@ -48,7 +48,7 @@ class RegisterFragment : Fragment() {
         (requireActivity().application as MyApplication).appComponent.inject(this)
 //        viewModel = ViewModelProvider(this).get(AuthViewModel::class.java)
 
-        viewModel = ViewModelProvider(this, authViewModelFactory).get(AuthViewModel::class.java)
+        viewModel = ViewModelProvider(requireActivity(), authViewModelFactory).get(AuthViewModel::class.java)
         binding.userRegister = viewModel
 
 //        viewModel.streamListener = this
@@ -76,7 +76,7 @@ class RegisterFragment : Fragment() {
                     }
                     is Resource.Success-> {
                         resource.data.let {
-                            viewModel.registerUser
+                            viewModel.registerUser()
                             Log.d("Register Fragment", "User: ${resource.data}")
                         }
                             Toast.makeText(context, "Successful", Toast.LENGTH_SHORT).show()
@@ -88,7 +88,7 @@ class RegisterFragment : Fragment() {
 //                        errorVisibility()
                         val errorMessage = resource.message
                         Toast.makeText(context, "Failed: $errorMessage", Toast.LENGTH_SHORT).show()
-                        Log.e("PinFragment", "Error: $errorMessage")
+                        Log.e("RegFragment", "Error: $errorMessage")
                     }
                 }
             }, { error ->
